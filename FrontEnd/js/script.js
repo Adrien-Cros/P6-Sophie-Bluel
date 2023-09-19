@@ -108,4 +108,4 @@ function filterByHotels (gallery, categories) {
   generateGallery(filter);
 };
 
-//suite
+//suite et test pour voir si les commit marchent
