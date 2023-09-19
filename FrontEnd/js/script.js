@@ -86,3 +86,9 @@ filterButtons.forEach(button => {
      generateGallery(filter);
    });
 });
+
+//bouton de login
+const boutonLogin = document.getElementById("login-btn");
+boutonLogin.addEventListener("click", () => {
+   location.href ="./login.html";
+});
