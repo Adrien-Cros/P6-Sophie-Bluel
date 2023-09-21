@@ -21,6 +21,22 @@ if (gallery === null){
    categories = JSON.parse(categories);
 }
 
+//récupère les informations de session storage dans la key login si l'utilisateur est loggé
+const userInfo = JSON.parse(window.sessionStorage.getItem('login'));
+//si l'utilisateur est loggé, alors affiche ou enlève les infos d'edition de la page
+if (userInfo) {
+   console.log(userInfo);
+   //affiche les barres d'edition de la page
+   const editionDisplayElements = document.querySelectorAll(".display-login");
+   //itère sur chaque éléments de editionDisplayElements
+   for (const element of editionDisplayElements) {
+      element.style.display = "flex";
+   }
+   //enlève la barre de filtre
+   const editionFilterBar = document.querySelector(".filter");
+   editionFilterBar.style.display = "none";
+}
+
 //affichage de la galerie dans la page html
 generateGallery(gallery);
 //affichage des boutons suivant les catégories dans la page html

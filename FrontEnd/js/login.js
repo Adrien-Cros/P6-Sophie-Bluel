@@ -35,13 +35,20 @@ form.addEventListener("submit", (event) => {
             return response.json();
         })
         .then(data => {
-            //traiter les données de la réponse
-            console.log('Réponse du serveur :', data);        
+            //stocke les données reçu du serveur si le code de réponse est 200
+            const login = JSON.stringify(data);
+            //stocke les informations de l'utilisateur connecté en session storage (pour reset les infos lorsque l'utilisateur ferme son navigateur)
+            window.sessionStorage.setItem("login", login);
+            //redirige vers la page principale
+            location.href ="./index.html";  
         })
         .catch(error => {
+            const errorMsg = document.querySelector(".error-msg");
+            errorMsg.textContent = "Erreur dans l’identifiant ou le mot de passe.";
             console.error('Erreur :', error);
         });
     } else {
-        console.log("Email invalide");
+        const errorMsg = document.querySelector(".error-msg");
+        errorMsg.textContent = "Format d'E-mail invalide.";
     }
 })
