@@ -18,18 +18,46 @@
 		<i class="fa-regular fa-pen-to-square"></i>
 		<span>Mode édition</span>
 	</div>
+	
 	<div id="modal" class="modal">
-		<div class="modal-content">
+		<div class="modal-content-main">
 			<i class="fa-solid fa-x modal-close"></i>
 			<div class="modal-title">Galerie photo</div>
 			<div class="modal-gallery">
 				<!-- Création des éléments pour chaque objets présent dans la gallery de l'API -->					
 			</div>
-			<hr />
-			<div class="modal-button">
-				<div class="modal-add-btn">Ajouter une photo</div>
+			<div class="modal-button-container">
+				<hr />
+				<div id="add-work" class="modal-btn btn-bg-green">Ajouter une photo</div>
 			</div>
 		</div>
+
+		<form method="post" class="modal-content-add">
+			<div class="modal-icon">
+				<i class="fa-solid fa-arrow-left return-arrow"></i>
+				<i class="fa-solid fa-x modal-close"></i>
+			</div>
+			<div class="modal-title">Ajout photo</div>
+			<div class="modal-new-item-container">
+				<div class="modal-photo-container">
+					<i class="fa-regular fa-image"></i>
+					<div class="add-image-btn btn-bg-gray">+ Ajouter photo</div>
+					<span class="img-restriction">jpg, png : 4mo max</span>
+				</div>
+				<div class="add-title-wrapper">
+					<label class="title-input">Titre</label>
+					<input type="text" name="name" id="name">
+				</div>
+				<div class="add-categories-wrapper">
+					<label class="title-input">Catégorie</label>
+					<input type="text" name="name" id="name">
+				</div>
+			</div>
+			<div class="modal-button-container">
+				<hr />
+				<div id="validate-work" class="modal-btn btn-bg-green">Valider</div>
+			</div>
+		</form>
 	</div>
 <header>
 	<h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>

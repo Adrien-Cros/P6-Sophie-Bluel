@@ -105,6 +105,8 @@ boutonLogin.addEventListener("click", () => {
 /**************MODAL**********************/
 const boutonModify = document.querySelector(".modify-btn");
 const modal = document.getElementById("modal");
+const modalMain = document.querySelector(".modal-content-main");
+const modalAdd = document.querySelector(".modal-content-add");
 
 function createModalGallery(gallery) {
    const modalGallery = document.querySelector(".modal-gallery");
@@ -153,6 +155,9 @@ function createModalGallery(gallery) {
 
 boutonModify.addEventListener("click", () => {
    modal.style.display = "flex";
+   modalMain.style.display = "flex";
+   modalAdd.style.display = "none";
+   returnArrow.style.visibility = "hidden";
    createModalGallery(gallery);
 });
 
@@ -160,4 +165,21 @@ modal.addEventListener("click", (event) => {
    if (event.target === modal || event.target.classList.contains("modal-close")) {
       modal.style.display = "none";
    }
+});
+
+/********Ajout des photos************/
+const addButton = document.getElementById("add-work");
+const returnArrow = document.querySelector(".return-arrow");
+
+returnArrow.addEventListener("click", () => {
+   console.log("j'ai cliqué")
+   returnArrow.style.visibility = "hidden";
+   modalMain.style.display = "flex";
+   modalAdd.style.display = "none";
+});
+
+addButton.addEventListener("click", () => {
+   returnArrow.style.visibility = "visible";
+   modalMain.style.display = "none";
+   modalAdd.style.display = "flex";
 });
