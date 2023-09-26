@@ -1,3 +1,4 @@
+// PB: ma page ce refresh lorsque je supprime un élément de ma modal
 const galleryDisplay = document.querySelector(".gallery");
 const buttonAll = 0;
 let gallery = window.localStorage.getItem('gallery');
@@ -7,19 +8,20 @@ init();
 displayAdminUI();
 
 async function init() {
-   if (gallery === null){
-      let response = await fetch('http://localhost:5678/api/works');
-      gallery = await response.json();
-      response = await fetch('http://localhost:5678/api/categories');
-      categories = await response.json();
-      const galleryNumbers = JSON.stringify(gallery);
-      const categoriesNumbers = JSON.stringify(categories);
-      window.localStorage.setItem("gallery", galleryNumbers);
-      window.localStorage.setItem("categories", categoriesNumbers);
+   let response = await fetch('http://localhost:5678/api/works');
+   gallery = await response.json();
+   response = await fetch('http://localhost:5678/api/categories');
+   categories = await response.json();
+   const galleryNumbers = JSON.stringify(gallery);
+   const categoriesNumbers = JSON.stringify(categories);
+   window.localStorage.setItem("gallery", galleryNumbers);
+   window.localStorage.setItem("categories", categoriesNumbers);
+  /* if (gallery === null){
+
    } else {
       gallery = JSON.parse(gallery);
       categories = JSON.parse(categories);
-   }
+   }*/
 
    generateGallery(gallery);
    createFilterButtons(categories);
@@ -103,7 +105,6 @@ boutonLogin.addEventListener("click", () => {
 /**************MODAL**********************/
 const boutonModify = document.querySelector(".modify-btn");
 const modal = document.getElementById("modal");
-const modalCloseImg = document.querySelector(".modal-close");
 
 function createModalGallery(gallery) {
    const modalGallery = document.querySelector(".modal-gallery");
@@ -111,7 +112,6 @@ function createModalGallery(gallery) {
    gallery.forEach(work => {
       const imageContainer = document.createElement("div");
       imageContainer.classList.add("modal-img-container");
-      imageContainer.setAttribute('data-work-id', work.id);
 
       const imageElement = document.createElement("img");
       imageElement.src = work.imageUrl;
@@ -120,6 +120,29 @@ function createModalGallery(gallery) {
       deleteElement.classList.add("modal-delete-item");
       deleteElement.classList.add("fa-solid");
       deleteElement.classList.add("fa-trash-can");
+      deleteElement.addEventListener("click", async (event) => {
+         event.preventDefault();
+         event.stopPropagation();
+         const userInfo = JSON.parse(window.sessionStorage.getItem('login'));
+         const adminToken = userInfo.token;
+      
+         let response = await fetch(`http://localhost:5678/api/works/${work.id}`, {
+            method: "DELETE",
+            headers: {
+               accept: "*/*",
+               Authorization: `Bearer ${adminToken}`,
+             },
+         })
+         if (response.ok) {
+            console.log("Delete from database:" + work.id);
+            gallery = gallery.filter(item => item.id !== work.id);
+            const galleryNumbers = JSON.stringify(gallery);
+            window.localStorage.setItem("gallery", galleryNumbers);
+            createModalGallery(gallery);
+         } else {
+            alert("Echec de la suppression");
+         }
+      });
 
       imageContainer.appendChild(imageElement);
       imageContainer.appendChild(deleteElement);
@@ -133,6 +156,8 @@ boutonModify.addEventListener("click", () => {
    createModalGallery(gallery);
 });
 
-modalCloseImg.addEventListener("click", () => {
-   modal.style.display = "none";
-})
+modal.addEventListener("click", (event) => {
+   if (event.target === modal || event.target.classList.contains("modal-close")) {
+      modal.style.display = "none";
+   }
+});

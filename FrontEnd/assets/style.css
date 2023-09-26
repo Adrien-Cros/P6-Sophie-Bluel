@@ -304,6 +304,7 @@ footer nav ul {
 	margin-bottom: 45px;
 	width: 237px;
 	height: 36px;
+	box-sizing: border-box;
 }
 .modal-add-btn:hover {
 	cursor: pointer;
@@ -338,4 +339,16 @@ footer nav ul {
 	border-radius: 3px;
 	top: 6px;
 	right: 6px;
+}
+.modal-delete-item:hover{
+	cursor: pointer;
+}
+hr {
+	border: none;
+	border: 1px solid #B3B3B3;
+	overflow: visible;
+	width: 67%;
+	text-align: center;
+	margin-top: 67px;
+	margin-bottom: 8px;
 }
