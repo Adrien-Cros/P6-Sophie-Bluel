@@ -76,22 +76,22 @@ function createFilterButtons (categories) {
    filterContainer.appendChild(button);
 
    categories.forEach(category => {
-      const button = document.createElement('button');
-      button.classList.add("filter-btn");
-      button.textContent = category.name;
-      button.setAttribute('data-category', category.id);
-      filterContainer.appendChild(button);
-    }); 
-};
+     const button = document.createElement('button');
+     button.classList.add("filter-btn");
+     button.textContent = category.name;
+     button.setAttribute('data-category', category.id);
+     filterContainer.appendChild(button);
+   }); 
 
-const filterButtons = document.querySelectorAll('[data-category]');
-filterButtons.forEach(button => {
-   button.addEventListener('click', () => {
-      const category = parseInt(button.getAttribute('data-category'));
-      const filter = category === buttonAll ? gallery : gallery.filter(work => work.categoryId === category);
-      generateGallery(filter);
+   const filterButtons = document.querySelectorAll('[data-category]');
+   filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+         const category = parseInt(button.getAttribute('data-category'));
+         const filter = category === buttonAll ? gallery : gallery.filter(work => work.categoryId === category);
+         generateGallery(filter);
+      });
    });
-});
+};
 
 const boutonLogin = document.getElementById("login-btn");
 boutonLogin.addEventListener("click", () => {
@@ -168,18 +168,89 @@ modal.addEventListener("click", (event) => {
 });
 
 /********Ajout des photos************/
-const addButton = document.getElementById("add-work");
+const addNewWorkBtn = document.getElementById("add-work");
 const returnArrow = document.querySelector(".return-arrow");
 
+const formUpload = document.getElementById("form-upload");
+const validateBtn = document.getElementById("validate-work");
+
+const addImgBtn = document.querySelector(".add-image-btn");
+const fileImg = document.querySelector(".file-img");
+
+const fileInput = document.getElementById("file");
+const workName = document.getElementById("work-name");
+const categoryName = document.getElementById("select-cat");
+
+const fileReader = new FileReader();
+
 returnArrow.addEventListener("click", () => {
-   console.log("j'ai cliqué")
    returnArrow.style.visibility = "hidden";
    modalMain.style.display = "flex";
    modalAdd.style.display = "none";
 });
 
-addButton.addEventListener("click", () => {
+addNewWorkBtn.addEventListener("click", () => {
    returnArrow.style.visibility = "visible";
    modalMain.style.display = "none";
    modalAdd.style.display = "flex";
+   addImgBtn.style.display = "flex";
+   fileImg.style.display = "none";
+
+   workName.value = "";
+   fileInput.value = "";
+   validateBtn.classList.remove("btn-bg-green");
+   validateBtn.classList.add("btn-bg-gray");
+   validateBtn.disabled = true;
+   createSelectCategory();
 });
+
+formUpload.addEventListener("change", () => {
+   const workValue = workName.value;
+   const categoryID = categoryName.value;
+
+   if (fileInput.files.length > 0) {
+      addImgBtn.style.display = "none";
+      fileImg.style.display = "block";
+
+      const selectedFile = fileInput.files[0];
+
+      fileReader.onload = function(event) {
+         addImgBtn.style.display = "none";
+         fileImg.style.display = "block";
+         fileImg.src = event.target.result;
+      };
+      fileReader.readAsDataURL(selectedFile);
+   } else {
+      addImgBtn.style.display = "flex";
+      fileImg.style.display = "none";
+   }
+
+   if (workValue !== "" && categoryID != 0 && fileInput.files.length > 0) {
+      validateBtn.classList.remove("btn-bg-gray");
+      validateBtn.classList.add("btn-bg-green");
+      validateBtn.disabled = false;
+      console.log("Prêt pour l'upload");
+   }
+});
+
+function createSelectCategory() {
+   if (categories) {
+      const selectCat = document.getElementById("select-cat");
+      selectCat.innerHTML = "";
+
+      const optionNull = document.createElement("option");
+      optionNull.text = "";
+      optionNull.value = 0;
+      selectCat.appendChild(optionNull);
+
+      categories.forEach(category => {
+         const option = document.createElement("option");
+         option.text = category.name;
+         option.value = category.id;
+
+         selectCat.appendChild(option);
+      });
+   } else {
+      console.log("Impossible de retrouver les catégories.")
+   }
+}

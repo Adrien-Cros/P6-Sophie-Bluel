@@ -235,16 +235,11 @@ footer nav ul {
 .display-login {
 	display: none;
 }
-
 .modify-btn {
 	position: absolute;
 	right: 32%;
 	top: 16%;
 	gap: 10px;
-}
-
-.modify-btn:hover {
-	cursor: pointer;
 }
 /*-------Modal-----------*/
 .modal {
@@ -281,9 +276,6 @@ footer nav ul {
 	margin-top: 26px;
 	margin-right: 30px;
 }
-.modal-close:hover {
-	cursor: pointer;
-}
 .modal-title {
 	display: flex;
 	justify-content: center;
@@ -316,7 +308,11 @@ footer nav ul {
 .btn-bg-green {
 	background: #1D6154;
 }
-.modal-btn:hover {
+.btn-bg-gray {
+	background: #A7A7A7;
+	border: none;
+}
+.btn-bg-green:hover {
 	cursor: pointer;
 	background: #0E2F28;
 }
@@ -350,7 +346,11 @@ footer nav ul {
 	top: 6px;
 	right: 6px;
 }
-.modal-delete-item:hover{
+.modal-delete-item:hover,
+.return-arrow:hover,
+.modal-close:hover,
+.modify-btn:hover,
+.add-image-btn:hover {
 	cursor: pointer;
 }
 hr {
@@ -375,10 +375,8 @@ hr {
 	margin-top: 26px;
 	margin-left: 30px;
 }
-.return-arrow:hover {
-	cursor: pointer;
-}
 .modal-photo-container {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-self: center;
@@ -443,9 +441,21 @@ hr {
 	font-weight: 500;
 	color: #3D3D3D;
 }
-.modal-new-item-container #name {
+.modal-new-item-container #work-name,
+.modal-new-item-container #select-cat {
 	height: 50px;
 	font-size: 1.2em;
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+	background: white;
+}
+.hide-file-btn {
+	display: none;
+}
+.modal-photo-container > img {
+	position: absolute;
+	height: 169px;
+	width: 129px;
+	top: 0;
+	left: 143px;
 }

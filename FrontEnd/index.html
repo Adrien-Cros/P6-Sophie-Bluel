@@ -27,12 +27,12 @@
 				<!-- Création des éléments pour chaque objets présent dans la gallery de l'API -->					
 			</div>
 			<div class="modal-button-container">
-				<hr />
+				<hr>
 				<div id="add-work" class="modal-btn btn-bg-green">Ajouter une photo</div>
 			</div>
 		</div>
 
-		<form method="post" class="modal-content-add">
+		<form enctype="multipart/form-data" method="post" name="fileinfo" class="modal-content-add" id="form-upload">
 			<div class="modal-icon">
 				<i class="fa-solid fa-arrow-left return-arrow"></i>
 				<i class="fa-solid fa-x modal-close"></i>
@@ -40,22 +40,28 @@
 			<div class="modal-title">Ajout photo</div>
 			<div class="modal-new-item-container">
 				<div class="modal-photo-container">
+					<img class="file-img" src="#" alt="Image Preview">
 					<i class="fa-regular fa-image"></i>
-					<div class="add-image-btn btn-bg-gray">+ Ajouter photo</div>
+					<label for="file" class="add-image-btn btn-bg-gray">
+						<input type="file" name="file" id="file" class="hide-file-btn">
+						+ Ajouter photo
+					</label>
 					<span class="img-restriction">jpg, png : 4mo max</span>
 				</div>
 				<div class="add-title-wrapper">
 					<label class="title-input">Titre</label>
-					<input type="text" name="name" id="name">
+					<input type="text" name="work-name" id="work-name">
 				</div>
 				<div class="add-categories-wrapper">
 					<label class="title-input">Catégorie</label>
-					<input type="text" name="name" id="name">
+					<select name="select" id="select-cat">
+						<!--Affichage des catégory ici-->
+					</select>
 				</div>
 			</div>
 			<div class="modal-button-container">
-				<hr />
-				<div id="validate-work" class="modal-btn btn-bg-green">Valider</div>
+				<hr>
+				<button type="submit" id="validate-work" class="modal-btn">Valider</button>
 			</div>
 		</form>
 	</div>
