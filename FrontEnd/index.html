@@ -43,14 +43,14 @@
 					<img class="file-img" src="#" alt="Image Preview">
 					<i class="fa-regular fa-image"></i>
 					<label for="file" class="add-image-btn btn-bg-gray">
-						<input type="file" name="file" id="file" class="hide-file-btn">
+						<input type="file" name="file" id="file" class="hide-file-btn" accept=".jpg, .png">
 						+ Ajouter photo
 					</label>
 					<span class="img-restriction">jpg, png : 4mo max</span>
 				</div>
 				<div class="add-title-wrapper">
 					<label class="title-input">Titre</label>
-					<input type="text" name="work-name" id="work-name">
+					<input type="text" name="work-name" id="work-name" autocomplete="off">
 				</div>
 				<div class="add-categories-wrapper">
 					<label class="title-input">Catégorie</label>
@@ -61,7 +61,7 @@
 			</div>
 			<div class="modal-button-container">
 				<hr>
-				<button type="submit" id="validate-work" class="modal-btn">Valider</button>
+				<button id="validate-work" class="modal-btn">Valider</button>
 			</div>
 		</form>
 	</div>

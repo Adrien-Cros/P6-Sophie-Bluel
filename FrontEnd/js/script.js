@@ -16,12 +16,6 @@ async function init() {
    const categoriesNumbers = JSON.stringify(categories);
    window.localStorage.setItem("gallery", galleryNumbers);
    window.localStorage.setItem("categories", categoriesNumbers);
-  /* if (gallery === null){
-
-   } else {
-      gallery = JSON.parse(gallery);
-      categories = JSON.parse(categories);
-   }*/
 
    generateGallery(gallery);
    createFilterButtons(categories);
@@ -32,7 +26,6 @@ function displayAdminUI() {
    const loginText = document.getElementById("login-btn");
    if (userInfo !== null) {
       if (userInfo.userId === 1) {
-         console.log(userInfo);
          const editionDisplayElements = document.querySelectorAll(".display-login");
          for (const element of editionDisplayElements) {
             element.style.display = "flex";
@@ -50,6 +43,7 @@ function displayAdminUI() {
 }
 
 function generateGallery(gallery) {
+   gallery.sort((a, b) => a.id - b.id);
    galleryDisplay.innerHTML = "";
    gallery.forEach(work => {
       const figure = document.createElement("figure");       
@@ -74,6 +68,7 @@ function createFilterButtons (categories) {
    button.textContent = "Tous";
    button.setAttribute('data-category', buttonAll);
    filterContainer.appendChild(button);
+   categories.sort((a, b) => a.id - b.id);
 
    categories.forEach(category => {
      const button = document.createElement('button');
@@ -111,6 +106,7 @@ const modalAdd = document.querySelector(".modal-content-add");
 function createModalGallery(gallery) {
    const modalGallery = document.querySelector(".modal-gallery");
    modalGallery.innerHTML = "";
+   gallery.sort((a, b) => a.id - b.id);
    gallery.forEach(work => {
       const imageContainer = document.createElement("div");
       imageContainer.classList.add("modal-img-container");
@@ -136,7 +132,6 @@ function createModalGallery(gallery) {
              },
          })
          if (response.ok) {
-            console.log("Delete from database:" + work.id);
             gallery = gallery.filter(item => item.id !== work.id);
             const galleryNumbers = JSON.stringify(gallery);
             window.localStorage.setItem("gallery", galleryNumbers);
@@ -207,29 +202,35 @@ addNewWorkBtn.addEventListener("click", () => {
 formUpload.addEventListener("change", () => {
    const workValue = workName.value;
    const categoryID = categoryName.value;
+   const maxFileSize = 4 * 1024 * 1024;
 
-   if (fileInput.files.length > 0) {
-      addImgBtn.style.display = "none";
-      fileImg.style.display = "block";
-
-      const selectedFile = fileInput.files[0];
-
-      fileReader.onload = function(event) {
+   if (fileInput.files[0].size < maxFileSize) {
+      if (fileInput.files.length > 0) {
          addImgBtn.style.display = "none";
          fileImg.style.display = "block";
-         fileImg.src = event.target.result;
-      };
-      fileReader.readAsDataURL(selectedFile);
+
+         const selectedFile = fileInput.files[0];
+         fileReader.onload = function(event) {
+            fileImg.src = event.target.result;
+         };
+         fileReader.readAsDataURL(selectedFile);
+      } else {
+         addImgBtn.style.display = "flex";
+         fileImg.style.display = "none";
+      }
    } else {
-      addImgBtn.style.display = "flex";
-      fileImg.style.display = "none";
+      alert("Fichier trop lourd, taille maximum 4 mo.");
    }
 
    if (workValue !== "" && categoryID != 0 && fileInput.files.length > 0) {
       validateBtn.classList.remove("btn-bg-gray");
       validateBtn.classList.add("btn-bg-green");
       validateBtn.disabled = false;
-      console.log("Prêt pour l'upload");
+
+      formUpload.addEventListener("submit", event => {
+         event.preventDefault();
+         submitWorkToAPI(workValue, fileInput.files[0], categoryID);
+      });
    }
 });
 
@@ -253,4 +254,31 @@ function createSelectCategory() {
    } else {
       console.log("Impossible de retrouver les catégories.")
    }
+}
+
+async function submitWorkToAPI (title, imageUrl, categoryId) {
+   const userInfo = JSON.parse(window.sessionStorage.getItem('login'));
+   const adminToken = userInfo.token;
+
+   const formData = new FormData();
+   formData.append('title', title);
+   formData.append('image', imageUrl);
+   formData.append('category', categoryId);
+
+   fetch ("http://localhost:5678/api/works", {
+      method: "POST",
+      headers: {
+         authorization: `Bearer ${adminToken}`
+       },
+      body: formData
+   })
+   .then(response => {
+      if (!response.ok) {
+          throw new Error('La demande a échoué avec le code ' + response.status);
+      }
+      return response.json();
+  })
+  .catch(error => {
+      console.error('Erreur :', error);
+  });
 }

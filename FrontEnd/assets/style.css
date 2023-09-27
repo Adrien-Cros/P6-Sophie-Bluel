@@ -319,9 +319,10 @@ footer nav ul {
 .modal-gallery {
 	display: flex;
 	flex-wrap: wrap;
-	justify-content: space-between;
+	justify-content: flex-start;
 	margin-right: 105px;
 	margin-left: 105px;
+	gap: 11px;
 }
 .modal-img-container {
 	display: flex;
