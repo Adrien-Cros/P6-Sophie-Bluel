@@ -1,30 +1,26 @@
-const galleryDisplay = document.querySelector(".gallery");
-const buttonAll = 0;
-let gallery = window.localStorage.getItem('gallery');
-let categories = window.localStorage.getItem('categories');
+const BUTTON_ALL = 0;
+let GLOBAL_GALLERY = JSON.parse(window.localStorage.getItem('gallery'));
+let GLOBAL_CATEGORIES = JSON.parse(window.localStorage.getItem('categories'));
 
 init();
 displayAdminUI();
 
 async function init() {
    let response = await fetch('http://localhost:5678/api/works');
-   gallery = await response.json();
+   GLOBAL_GALLERY = await response.json();
    response = await fetch('http://localhost:5678/api/categories');
-   categories = await response.json();
-   const galleryNumbers = JSON.stringify(gallery);
-   const categoriesNumbers = JSON.stringify(categories);
-   window.localStorage.setItem("gallery", galleryNumbers);
-   window.localStorage.setItem("categories", categoriesNumbers);
+   GLOBAL_CATEGORIES = await response.json();
+   window.localStorage.setItem("gallery", JSON.stringify(GLOBAL_GALLERY));
+   window.localStorage.setItem("categories", JSON.stringify(GLOBAL_CATEGORIES));
 
-   generateGallery(gallery);
-   createFilterButtons(categories);
+   generateGallery(GLOBAL_GALLERY);
+   createFilterButtons(GLOBAL_CATEGORIES);
 };
 
 function displayAdminUI() {
    const userInfo = JSON.parse(window.sessionStorage.getItem('login'));
    const loginText = document.getElementById("login-btn");
    if (userInfo !== null) {
-      if (userInfo.userId === 1) {
          loginText.innerText = "logout";
          const editionDisplayElements = document.querySelectorAll(".display-login");
          for (const element of editionDisplayElements) {
@@ -32,16 +28,13 @@ function displayAdminUI() {
          }
          const editionFilterBar = document.querySelector(".filter");
          editionFilterBar.style.display = "none";
-      } else {
-         loginText.innerText = "logout";
-         console.log("User isn't an admin.");
-      }
    } else {
       console.log("User not logged.");
    }
 }
 
 function generateGallery(gallery) {
+   const galleryDisplay = document.querySelector(".gallery");
    gallery.sort((a, b) => a.id - b.id);
    galleryDisplay.innerHTML = "";
    gallery.forEach(work => {
@@ -61,11 +54,12 @@ function generateGallery(gallery) {
 
 function createFilterButtons (categories) {
    const filterContainer = document.querySelector(".filter")
+   filterContainer.innerHTML = "";
 
    const button = document.createElement('button');
    button.classList.add("filter-btn");
    button.textContent = "Tous";
-   button.setAttribute('data-category', buttonAll);
+   button.setAttribute('data-category', BUTTON_ALL);
    filterContainer.appendChild(button);
    categories.sort((a, b) => a.id - b.id);
 
@@ -80,8 +74,8 @@ function createFilterButtons (categories) {
    const filterButtons = document.querySelectorAll('[data-category]');
    filterButtons.forEach(button => {
       button.addEventListener('click', () => {
-         const category = parseInt(button.getAttribute('data-category'));
-         const filter = category === buttonAll ? gallery : gallery.filter(work => work.categoryId === category);
+         const categoryID = parseInt(button.getAttribute('data-category'));
+         const filter = categoryID === BUTTON_ALL ? GLOBAL_GALLERY : GLOBAL_GALLERY.filter(work => work.categoryId === categoryID);
          generateGallery(filter);
       });
    });
@@ -92,13 +86,7 @@ boutonLogin.addEventListener("click", () => {
    const userInfo = JSON.parse(window.sessionStorage.getItem('login'));
    if (userInfo) {
       window.sessionStorage.removeItem('login');
-      boutonLogin.innerText = "login";
-      const editionDisplayElements = document.querySelectorAll(".display-login");
-      for (const element of editionDisplayElements) {
-         element.style.display = "none";
-      }
-      const editionFilterBar = document.querySelector(".filter");
-      editionFilterBar.style.display = "flex";
+      location.reload();
    } else {
       location.href ="./login.html";
    }
@@ -125,32 +113,37 @@ function createModalGallery(gallery) {
       deleteElement.classList.add("modal-delete-item");
       deleteElement.classList.add("fa-solid");
       deleteElement.classList.add("fa-trash-can");
-      deleteElement.addEventListener("click", async (event) => {
+      imageContainer.appendChild(imageElement);
+      imageContainer.appendChild(deleteElement);
+
+      modalGallery.appendChild(imageContainer);
+      deleteElement.addEventListener("click", (event) => {
          event.preventDefault();
          const userInfo = JSON.parse(window.sessionStorage.getItem('login'));
          const adminToken = userInfo.token;
       
-         let response = await fetch(`http://localhost:5678/api/works/${work.id}`, {
+         fetch(`http://localhost:5678/api/works/${work.id}`, {
             method: "DELETE",
             headers: {
                accept: "*/*",
                Authorization: `Bearer ${adminToken}`,
              },
          })
-         if (response.ok) {
-            gallery = gallery.filter(item => item.id !== work.id);
-            const galleryNumbers = JSON.stringify(gallery);
-            window.localStorage.setItem("gallery", galleryNumbers);
-            createModalGallery(gallery);
-         } else {
-            alert("Echec de la suppression");
-         }
+         .then(response => {
+            if (response.ok) {
+               gallery = gallery.filter(item => item.id !== work.id);
+               window.localStorage.setItem("gallery", JSON.stringify(gallery));
+               GLOBAL_GALLERY = JSON.parse(window.localStorage.getItem('gallery'));
+               createModalGallery(gallery);
+               generateGallery(gallery);
+            } else {
+               alert("Echec de la suppression");
+            }
+         })
+         .catch(error => {
+         console.error('Erreur :', error);
+         });
       });
-
-      imageContainer.appendChild(imageElement);
-      imageContainer.appendChild(deleteElement);
-
-      modalGallery.appendChild(imageContainer);
    });
 };
 
@@ -159,7 +152,7 @@ boutonModify.addEventListener("click", () => {
    modalMain.style.display = "flex";
    modalAdd.style.display = "none";
    returnArrow.style.visibility = "hidden";
-   createModalGallery(gallery);
+   createModalGallery(GLOBAL_GALLERY);
 });
 
 modal.addEventListener("click", (event) => {
@@ -228,7 +221,8 @@ formUpload.addEventListener("change", () => {
       alert("Fichier trop lourd, taille maximum 4 mo.");
    }
 
-   if (workValue !== "" && categoryID != 0 && fileInput.files.length > 0) {
+   const readyToSubmit = workValue !== "" && categoryID != 0 && fileInput.files.length > 0;
+   if (readyToSubmit) {
       validateBtn.classList.remove("btn-bg-gray");
       validateBtn.classList.add("btn-bg-green");
       validateBtn.disabled = false;
@@ -241,7 +235,7 @@ formUpload.addEventListener("change", () => {
 });
 
 function createSelectCategory() {
-   if (categories) {
+   if (GLOBAL_CATEGORIES) {
       const selectCat = document.getElementById("select-cat");
       selectCat.innerHTML = "";
 
@@ -250,7 +244,7 @@ function createSelectCategory() {
       optionNull.value = 0;
       selectCat.appendChild(optionNull);
 
-      categories.forEach(category => {
+      GLOBAL_CATEGORIES.forEach(category => {
          const option = document.createElement("option");
          option.text = category.name;
          option.value = category.id;
@@ -262,7 +256,7 @@ function createSelectCategory() {
    }
 }
 
-   function submitWorkToAPI (title, imageUrl, categoryId) {
+function submitWorkToAPI (title, imageUrl, categoryId) {
    const userInfo = JSON.parse(window.sessionStorage.getItem('login'));
    const adminToken = userInfo.token;
 
@@ -286,9 +280,14 @@ function createSelectCategory() {
   })
   .then(data => {
    if (data) {
-       console.log(data);
+      GLOBAL_GALLERY.push(data);
+      window.localStorage.setItem("gallery", JSON.stringify(GLOBAL_GALLERY));
+      GLOBAL_GALLERY = JSON.parse(window.localStorage.getItem('gallery'));
+      console.log("test GLOBAL GALLERY:", GLOBAL_GALLERY);
+
+      modal.style.display = "none";
+      generateGallery(GLOBAL_GALLERY);
    }
-   return response.json();
 })
   .catch(error => {
       console.error('Erreur :', error);
