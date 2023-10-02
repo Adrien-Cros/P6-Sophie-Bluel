@@ -1,4 +1,3 @@
-// PB: ma page ce refresh lorsque je supprime un élément de ma modal
 const galleryDisplay = document.querySelector(".gallery");
 const buttonAll = 0;
 let gallery = window.localStorage.getItem('gallery');
@@ -26,10 +25,10 @@ function displayAdminUI() {
    const loginText = document.getElementById("login-btn");
    if (userInfo !== null) {
       if (userInfo.userId === 1) {
+         loginText.innerText = "logout";
          const editionDisplayElements = document.querySelectorAll(".display-login");
          for (const element of editionDisplayElements) {
             element.style.display = "flex";
-            loginText.innerText = "logout";
          }
          const editionFilterBar = document.querySelector(".filter");
          editionFilterBar.style.display = "none";
@@ -93,8 +92,17 @@ boutonLogin.addEventListener("click", () => {
    const userInfo = JSON.parse(window.sessionStorage.getItem('login'));
    if (userInfo) {
       window.sessionStorage.removeItem('login');
+      const loginText = document.getElementById("login-btn");
+      loginText.innerText = "login";
+      const editionDisplayElements = document.querySelectorAll(".display-login");
+      for (const element of editionDisplayElements) {
+         element.style.display = "none";
+      }
+      const editionFilterBar = document.querySelector(".filter");
+      editionFilterBar.style.display = "flex";
+   } else {
+      location.href ="./login.html";
    }
-   location.href ="./login.html";
 });
 
 /**************MODAL**********************/
@@ -120,7 +128,6 @@ function createModalGallery(gallery) {
       deleteElement.classList.add("fa-trash-can");
       deleteElement.addEventListener("click", async (event) => {
          event.preventDefault();
-         event.stopPropagation();
          const userInfo = JSON.parse(window.sessionStorage.getItem('login'));
          const adminToken = userInfo.token;
       
@@ -202,7 +209,7 @@ addNewWorkBtn.addEventListener("click", () => {
 formUpload.addEventListener("change", () => {
    const workValue = workName.value;
    const categoryID = categoryName.value;
-   const maxFileSize = 4 * 1024 * 1024;
+   const maxFileSize = 4 * 1024 * 1024; // 4 MO
 
    if (fileInput.files[0].size < maxFileSize) {
       if (fileInput.files.length > 0) {
@@ -256,7 +263,7 @@ function createSelectCategory() {
    }
 }
 
-async function submitWorkToAPI (title, imageUrl, categoryId) {
+   function submitWorkToAPI (title, imageUrl, categoryId) {
    const userInfo = JSON.parse(window.sessionStorage.getItem('login'));
    const adminToken = userInfo.token;
 
@@ -278,6 +285,12 @@ async function submitWorkToAPI (title, imageUrl, categoryId) {
       }
       return response.json();
   })
+  .then(data => {
+   if (data) {
+       console.log(data);
+   }
+   return response.json();
+})
   .catch(error => {
       console.error('Erreur :', error);
   });
