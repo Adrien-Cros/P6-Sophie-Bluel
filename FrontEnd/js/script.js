@@ -92,8 +92,7 @@ boutonLogin.addEventListener("click", () => {
    const userInfo = JSON.parse(window.sessionStorage.getItem('login'));
    if (userInfo) {
       window.sessionStorage.removeItem('login');
-      const loginText = document.getElementById("login-btn");
-      loginText.innerText = "login";
+      boutonLogin.innerText = "login";
       const editionDisplayElements = document.querySelectorAll(".display-login");
       for (const element of editionDisplayElements) {
          element.style.display = "none";
