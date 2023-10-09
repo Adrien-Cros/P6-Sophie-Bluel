@@ -1,20 +1,20 @@
-const BUTTON_ALL = 0;
-let GLOBAL_GALLERY = JSON.parse(window.localStorage.getItem('gallery'));
-let GLOBAL_CATEGORIES = JSON.parse(window.localStorage.getItem('categories'));
+const BUTTON_RESET_FILTER = 0;
+let globalGallery = JSON.parse(window.localStorage.getItem('gallery'));
+let globalCategories = JSON.parse(window.localStorage.getItem('categories'));
 
 init();
 displayAdminUI();
 
 async function init() {
    let response = await fetch('http://localhost:5678/api/works');
-   GLOBAL_GALLERY = await response.json();
+   globalGallery = await response.json();
    response = await fetch('http://localhost:5678/api/categories');
-   GLOBAL_CATEGORIES = await response.json();
-   window.localStorage.setItem("gallery", JSON.stringify(GLOBAL_GALLERY));
-   window.localStorage.setItem("categories", JSON.stringify(GLOBAL_CATEGORIES));
+   globalCategories = await response.json();
+   window.localStorage.setItem("gallery", JSON.stringify(globalGallery));
+   window.localStorage.setItem("categories", JSON.stringify(globalCategories));
 
-   generateGallery(GLOBAL_GALLERY);
-   createFilterButtons(GLOBAL_CATEGORIES);
+   generateGallery(globalGallery);
+   createFilterButtons(globalCategories);
 };
 
 function displayAdminUI() {
@@ -28,8 +28,6 @@ function displayAdminUI() {
          }
          const editionFilterBar = document.querySelector(".filter");
          editionFilterBar.style.display = "none";
-   } else {
-      console.log("User not logged.");
    }
 }
 
@@ -59,7 +57,7 @@ function createFilterButtons (categories) {
    const button = document.createElement('button');
    button.classList.add("filter-btn");
    button.textContent = "Tous";
-   button.setAttribute('data-category', BUTTON_ALL);
+   button.setAttribute('data-category', BUTTON_RESET_FILTER);
    filterContainer.appendChild(button);
    categories.sort((a, b) => a.id - b.id);
 
@@ -75,7 +73,7 @@ function createFilterButtons (categories) {
    filterButtons.forEach(button => {
       button.addEventListener('click', () => {
          const categoryID = parseInt(button.getAttribute('data-category'));
-         const filter = categoryID === BUTTON_ALL ? GLOBAL_GALLERY : GLOBAL_GALLERY.filter(work => work.categoryId === categoryID);
+         const filter = categoryID === BUTTON_RESET_FILTER ? globalGallery : globalGallery.filter(work => work.categoryId === categoryID);
          generateGallery(filter);
       });
    });
@@ -133,7 +131,7 @@ function createModalGallery(gallery) {
             if (response.ok) {
                gallery = gallery.filter(item => item.id !== work.id);
                window.localStorage.setItem("gallery", JSON.stringify(gallery));
-               GLOBAL_GALLERY = JSON.parse(window.localStorage.getItem('gallery'));
+               globalGallery = JSON.parse(window.localStorage.getItem('gallery'));
                createModalGallery(gallery);
                generateGallery(gallery);
             } else {
@@ -152,7 +150,7 @@ boutonModify.addEventListener("click", () => {
    modalMain.style.display = "flex";
    modalAdd.style.display = "none";
    returnArrow.style.visibility = "hidden";
-   createModalGallery(GLOBAL_GALLERY);
+   createModalGallery(globalGallery);
 });
 
 modal.addEventListener("click", (event) => {
@@ -235,7 +233,7 @@ formUpload.addEventListener("change", () => {
 });
 
 function createSelectCategory() {
-   if (GLOBAL_CATEGORIES) {
+   if (globalCategories) {
       const selectCat = document.getElementById("select-cat");
       selectCat.innerHTML = "";
 
@@ -244,7 +242,7 @@ function createSelectCategory() {
       optionNull.value = 0;
       selectCat.appendChild(optionNull);
 
-      GLOBAL_CATEGORIES.forEach(category => {
+      globalCategories.forEach(category => {
          const option = document.createElement("option");
          option.text = category.name;
          option.value = category.id;
@@ -252,7 +250,7 @@ function createSelectCategory() {
          selectCat.appendChild(option);
       });
    } else {
-      console.log("Impossible de retrouver les catégories.")
+      alert("Impossible de retrouver les catégories.")
    }
 }
 
@@ -274,21 +272,20 @@ function submitWorkToAPI (title, imageUrl, categoryId) {
    })
    .then(response => {
       if (!response.ok) {
-          throw new Error('La demande a échoué avec le code ' + response.status);
+         throw new Error('La demande a échoué avec le code ' + response.status);
       }
       return response.json();
   })
   .then(data => {
-   if (data) {
-      GLOBAL_GALLERY.push(data);
-      window.localStorage.setItem("gallery", JSON.stringify(GLOBAL_GALLERY));
-      GLOBAL_GALLERY = JSON.parse(window.localStorage.getItem('gallery'));
-      console.log("test GLOBAL GALLERY:", GLOBAL_GALLERY);
+      if (data) {
+         globalGallery.push(data);
+         window.localStorage.setItem("gallery", JSON.stringify(globalGallery));
+         globalGallery = JSON.parse(window.localStorage.getItem('gallery'));
 
-      modal.style.display = "none";
-      generateGallery(GLOBAL_GALLERY);
-   }
-})
+         modal.style.display = "none";
+         generateGallery(globalGallery);
+      }
+   })
   .catch(error => {
       console.error('Erreur :', error);
   });
