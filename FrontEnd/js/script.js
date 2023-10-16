@@ -196,62 +196,53 @@ addNewWorkBtn.addEventListener("click", () => {
    createSelectCategory();
 });
 
+let selectedFile = null;
+let workValue = null;
+let categoryID = null;
+
 formUpload.addEventListener("change", () => {
-   const workValue = workName.value;
-   const categoryID = categoryName.value;
+   workValue = workName.value;
+   categoryID = categoryName.value;
    const maxFileSize = 4 * 1024 * 1024; // 4 MO
 
-   if (fileInput.files[0].size < maxFileSize) {
-      if (fileInput.files.length > 0) {
+   if (fileInput.files.length > 0) {
+      selectedFile = fileInput.files[0];
+
+      if (selectedFile.size < maxFileSize) {
          addImgBtn.style.display = "none";
          fileImg.style.display = "block";
 
-         const selectedFile = fileInput.files[0];
          fileReader.onload = function(event) {
             fileImg.src = event.target.result;
          };
          fileReader.readAsDataURL(selectedFile);
       } else {
-         addImgBtn.style.display = "flex";
-         fileImg.style.display = "none";
+         alert("Fichier trop lourd, taille maximum 4 mo.");
       }
    } else {
-      alert("Fichier trop lourd, taille maximum 4 mo.");
+      addImgBtn.style.display = "flex";
+      fileImg.style.display = "none";
    }
 
-   const readyToSubmit = workValue !== "" && categoryID != 0 && fileInput.files.length > 0;
+   let readyToSubmit = workValue !== "" && categoryID != 0 && fileInput.files.length > 0;
    if (readyToSubmit) {
       validateBtn.classList.remove("btn-bg-gray");
       validateBtn.classList.add("btn-bg-green");
       validateBtn.disabled = false;
 
-      formUpload.addEventListener("submit", event => {
-         event.preventDefault();
-         submitWorkToAPI(workValue, fileInput.files[0], categoryID);
-      });
+      formUpload.removeEventListener("submit", submitHandler);
+      formUpload.addEventListener("submit", submitHandler);
+   } else {
+      validateBtn.classList.remove("btn-bg-green");
+      validateBtn.classList.add("btn-bg-gray");
+      validateBtn.disabled = true;
+      readyToSubmit = false;
    }
 });
 
-function createSelectCategory() {
-   if (globalCategories) {
-      const selectCat = document.getElementById("select-cat");
-      selectCat.innerHTML = "";
-
-      const optionNull = document.createElement("option");
-      optionNull.text = "";
-      optionNull.value = 0;
-      selectCat.appendChild(optionNull);
-
-      globalCategories.forEach(category => {
-         const option = document.createElement("option");
-         option.text = category.name;
-         option.value = category.id;
-
-         selectCat.appendChild(option);
-      });
-   } else {
-      alert("Impossible de retrouver les catégories.")
-   }
+function submitHandler(event) {
+   event.preventDefault();
+   submitWorkToAPI(workValue, selectedFile, categoryID);
 }
 
 function submitWorkToAPI (title, imageUrl, categoryId) {
@@ -290,3 +281,30 @@ function submitWorkToAPI (title, imageUrl, categoryId) {
       console.error('Erreur :', error);
   });
 }
+
+function createSelectCategory() {
+   if (globalCategories) {
+      const selectCat = document.getElementById("select-cat");
+      selectCat.innerHTML = "";
+
+      const optionNull = document.createElement("option");
+      optionNull.text = "";
+      optionNull.value = 0;
+      selectCat.appendChild(optionNull);
+
+      globalCategories.forEach(category => {
+         const option = document.createElement("option");
+         option.text = category.name;
+         option.value = category.id;
+
+         selectCat.appendChild(option);
+      });
+   } else {
+      alert("Impossible de retrouver les catégories.")
+   }
+}
+
+const formContact = document.getElementById("form-contact");
+formContact.addEventListener("submit", event => {
+   event.preventDefault();
+})
